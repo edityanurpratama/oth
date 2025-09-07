@@ -3,506 +3,772 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Klasifikasi Beasiswa - MP3 Kelompok 02</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>MP3 Report Generator - Klasifikasi Beasiswa</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-        .modal { display: none; }
-        .modal.active { display: flex; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .main-content {
+            padding: 30px;
+        }
+        
+        .form-section {
+            background: #f8f9fc;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border: 1px solid #e3e6f0;
+        }
+        
+        .form-section h3 {
+            color: #5a5c69;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #5a5c69;
+            font-weight: 600;
+        }
+        
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e3e6f0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .form-group textarea {
+            height: 120px;
+            resize: vertical;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn-full {
+            width: 100%;
+            margin-top: 20px;
+        }
+        
+        .preview-section {
+            margin-top: 30px;
+            padding: 25px;
+            background: #f8f9fc;
+            border-radius: 15px;
+            border: 1px solid #e3e6f0;
+        }
+        
+        .preview-section h3 {
+            color: #5a5c69;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+        }
+        
+        .report-preview {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-top: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            color: #667eea;
+            font-weight: 600;
+        }
+        
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .alert-success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        
+        .alert-info {
+            background-color: #cce7ff;
+            border: 1px solid #99d6ff;
+            color: #004085;
+        }
+        
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+        }
     </style>
 </head>
-<body class="min-h-screen bg-gray-50">
-    <!-- Header -->
-    <div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6">
-        <div class="max-w-6xl mx-auto">
-            <h1 class="text-3xl font-bold mb-2">🎓 Sistem Klasifikasi Beasiswa</h1>
-            <p class="opacity-90">MP3 Kelompok 02 - Kelas 5D | Machine Learning</p>
-            <div class="mt-4 flex space-x-8">
-                <div class="text-center">
-                    <div class="text-2xl font-bold" id="nb-accuracy">85.0%</div>
-                    <div class="text-sm opacity-80">Naive Bayes</div>
-                </div>
-                <div class="text-center">
-                    <div class="text-2xl font-bold" id="knn-accuracy">90.0%</div>
-                    <div class="text-sm opacity-80">K-NN</div>
-                </div>
-            </div>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎓 MP3 Report Generator</h1>
+            <p>Generator Laporan Klasifikasi Beasiswa Mahasiswa</p>
         </div>
-    </div>
-
-    <div class="max-w-6xl mx-auto">
-        <!-- Navigation Tabs -->
-        <div class="flex border-b border-gray-200 bg-white">
-            <button onclick="showTab('overview')" class="tab-btn py-4 px-6 border-b-2 border-blue-500 text-blue-600 font-medium text-sm">
-                📊 Overview
-            </button>
-            <button onclick="showTab('dataset')" class="tab-btn py-4 px-6 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm">
-                📚 Dataset
-            </button>
-            <button onclick="showTab('naivebayes')" class="tab-btn py-4 px-6 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm">
-                🧠 Naive Bayes
-            </button>
-            <button onclick="showTab('knn')" class="tab-btn py-4 px-6 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm">
-                🎯 K-NN
-            </button>
-            <button onclick="showTab('comparison')" class="tab-btn py-4 px-6 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm">
-                ⚖️ Perbandingan
-            </button>
-            <button onclick="showTab('download')" class="tab-btn py-4 px-6 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm">
-                📥 Export
-            </button>
-        </div>
-
-        <!-- Content -->
-        <div class="p-6 bg-white min-h-96">
-            <!-- Overview Tab -->
-            <div id="overview" class="tab-content active">
-                <div class="space-y-6">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="bg-blue-50 p-6 rounded-lg border border-blue-200">
-                            <h3 class="text-lg font-semibold text-blue-800 mb-4">Naive Bayes</h3>
-                            <div class="text-3xl font-bold text-blue-600">85.0%</div>
-                            <p class="text-blue-700">Akurasi Training</p>
-                        </div>
-                        <div class="bg-green-50 p-6 rounded-lg border border-green-200">
-                            <h3 class="text-lg font-semibold text-green-800 mb-4">K-NN</h3>
-                            <div class="text-3xl font-bold text-green-600">90.0%</div>
-                            <p class="text-green-700">Akurasi Training</p>
-                        </div>
-                    </div>
-
-                    <div class="bg-gray-50 p-6 rounded-lg">
-                        <h3 class="text-lg font-semibold mb-4">📊 Ringkasan Dataset</h3>
-                        <div class="grid grid-cols-3 gap-4 text-center">
-                            <div>
-                                <div class="text-2xl font-bold text-gray-800">20</div>
-                                <div class="text-gray-600">Total Mahasiswa</div>
-                            </div>
-                            <div>
-                                <div class="text-2xl font-bold text-green-600">12</div>
-                                <div class="text-gray-600">Dapat Beasiswa</div>
-                            </div>
-                            <div>
-                                <div class="text-2xl font-bold text-red-600">8</div>
-                                <div class="text-gray-600">Tidak Dapat</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <button onclick="showTab('naivebayes')" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-3 rounded-lg transition-colors">
-                            ▶️ Test Naive Bayes
-                        </button>
-                        <button onclick="showTab('knn')" class="bg-green-500 hover:bg-green-600 text-white px-4 py-3 rounded-lg transition-colors">
-                            ▶️ Test K-NN
-                        </button>
-                        <button onclick="showTab('download')" class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-3 rounded-lg transition-colors">
-                            📄 Export Laporan
-                        </button>
-                    </div>
-
-                    <div id="predictions-log" class="bg-white p-6 rounded-lg border" style="display: none;">
-                        <h3 class="text-lg font-semibold mb-4">📝 Prediksi Terakhir</h3>
-                        <div id="predictions-list" class="space-y-2"></div>
-                    </div>
-                </div>
+        
+        <div class="main-content">
+            <div class="alert alert-info">
+                <strong>📋 Instruksi:</strong> Isi form dibawah untuk generate laporan lengkap MP3 Anda. 
+                Laporan akan berupa file ZIP yang berisi dokumen TXT dan gambar-gambar pendukung.
             </div>
-
-            <!-- Dataset Tab -->
-            <div id="dataset" class="tab-content">
-                <h2 class="text-2xl font-bold mb-6">📊 Dataset Lengkap</h2>
-                <div class="overflow-x-auto">
-                    <table class="w-full border-collapse border border-gray-300">
-                        <thead class="bg-gray-100">
-                            <tr>
-                                <th class="border border-gray-300 px-4 py-2">No</th>
-                                <th class="border border-gray-300 px-4 py-2">IPK Kategori</th>
-                                <th class="border border-gray-300 px-4 py-2">Pendapatan</th>
-                                <th class="border border-gray-300 px-4 py-2">Organisasi</th>
-                                <th class="border border-gray-300 px-4 py-2">IPK Numerik</th>
-                                <th class="border border-gray-300 px-4 py-2">Pendapatan (Juta)</th>
-                                <th class="border border-gray-300 px-4 py-2">Skor Organisasi</th>
-                                <th class="border border-gray-300 px-4 py-2">Beasiswa</th>
-                            </tr>
-                        </thead>
-                        <tbody id="dataset-table">
-                            <!-- Data akan diisi dengan JavaScript -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Naive Bayes Tab -->
-            <div id="naivebayes" class="tab-content">
-                <div class="space-y-6">
-                    <h2 class="text-2xl font-bold">🧠 Naive Bayes Classifier</h2>
+            
+            <form id="reportForm">
+                <div class="form-section">
+                    <h3>📝 Informasi Kelompok</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="kelompok">Nomor Kelompok</label>
+                            <input type="text" id="kelompok" name="kelompok" placeholder="Contoh: 01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="kelas">Kelas</label>
+                            <input type="text" id="kelas" name="kelas" placeholder="Contoh: 5D" required>
+                        </div>
+                    </div>
                     
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="bg-blue-50 p-4 rounded-lg text-center">
-                            <div class="text-lg font-bold text-blue-800">0.60</div>
-                            <div class="text-blue-600">P(Ya)</div>
-                        </div>
-                        <div class="bg-red-50 p-4 rounded-lg text-center">
-                            <div class="text-lg font-bold text-red-800">0.40</div>
-                            <div class="text-red-600">P(Tidak)</div>
-                        </div>
+                    <div class="form-group">
+                        <label for="anggota">Nama Anggota Kelompok</label>
+                        <textarea id="anggota" name="anggota" placeholder="Masukkan nama lengkap dan NIM semua anggota kelompok, pisahkan dengan enter" required></textarea>
                     </div>
-
-                    <form onsubmit="handleNBPrediction(event)" class="space-y-4 bg-gray-50 p-6 rounded-lg">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">IPK Kategori</label>
-                            <select name="ipk" required class="w-full p-3 border border-gray-300 rounded-lg">
-                                <option value="Tinggi">Tinggi</option>
-                                <option value="Sedang">Sedang</option>
-                                <option value="Rendah">Rendah</option>
-                            </select>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Pendapatan Keluarga</label>
-                            <select name="pendapatan" required class="w-full p-3 border border-gray-300 rounded-lg">
-                                <option value="Rendah">Rendah</option>
-                                <option value="Sedang">Sedang</option>
-                                <option value="Tinggi">Tinggi</option>
-                            </select>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Aktivitas Organisasi</label>
-                            <select name="organisasi" required class="w-full p-3 border border-gray-300 rounded-lg">
-                                <option value="Aktif">Aktif</option>
-                                <option value="Tidak Aktif">Tidak Aktif</option>
-                            </select>
-                        </div>
-                        
-                        <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-3 rounded-lg transition-colors font-medium">
-                            Klasifikasi dengan Naive Bayes
-                        </button>
-                    </form>
                 </div>
-            </div>
-
-            <!-- K-NN Tab -->
-            <div id="knn" class="tab-content">
-                <div class="space-y-6">
-                    <h2 class="text-2xl font-bold">🎯 K-Nearest Neighbor</h2>
-                    
-                    <form onsubmit="handleKNNPrediction(event)" class="space-y-4 bg-gray-50 p-6 rounded-lg">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Nilai K</label>
-                            <select name="k" required class="w-full p-3 border border-gray-300 rounded-lg">
-                                <option value="3">K = 3</option>
-                                <option value="5">K = 5</option>
-                                <option value="7">K = 7</option>
-                            </select>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">IPK (0.0 - 4.0)</label>
-                            <input type="number" name="ipkNum" min="0" max="4" step="0.1" value="3.5" required class="w-full p-3 border border-gray-300 rounded-lg">
-                        </div>
-                        
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Pendapatan (Juta Rupiah)</label>
-                            <input type="number" name="pendapatanNum" min="1" max="20" value="5" required class="w-full p-3 border border-gray-300 rounded-lg">
-                        </div>
-                        
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Skor Organisasi (1-10)</label>
-                            <input type="number" name="skorOrg" min="1" max="10" value="5" required class="w-full p-3 border border-gray-300 rounded-lg">
-                        </div>
-                        
-                        <button type="submit" class="w-full bg-green-500 hover:bg-green-600 text-white px-4 py-3 rounded-lg transition-colors font-medium">
-                            Klasifikasi dengan K-NN
-                        </button>
-                    </form>
-                </div>
-            </div>
-
-            <!-- Comparison Tab -->
-            <div id="comparison" class="tab-content">
-                <h2 class="text-2xl font-bold mb-6">⚖️ Perbandingan Model</h2>
                 
-                <div class="overflow-x-auto">
-                    <table class="w-full border-collapse border border-gray-300">
-                        <thead class="bg-gray-100">
-                            <tr>
-                                <th class="border border-gray-300 px-4 py-2 text-left">Aspek</th>
-                                <th class="border border-gray-300 px-4 py-2">Naive Bayes</th>
-                                <th class="border border-gray-300 px-4 py-2">K-NN</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td class="border border-gray-300 px-4 py-2 font-medium">Akurasi Training</td>
-                                <td class="border border-gray-300 px-4 py-2 text-center">85.0%</td>
-                                <td class="border border-gray-300 px-4 py-2 text-center">90.0%</td>
-                            </tr>
-                            <tr>
-                                <td class="border border-gray-300 px-4 py-2 font-medium">Kecepatan Prediksi</td>
-                                <td class="border border-gray-300 px-4 py-2 text-center">Cepat</td>
-                                <td class="border border-gray-300 px-4 py-2 text-center">Sedang</td>
-                            </tr>
-                            <tr>
-                                <td class="border border-gray-300 px-4 py-2 font-medium">Penggunaan Memori</td>
-                                <td class="border border-gray-300 px-4 py-2 text-center">Rendah</td>
-                                <td class="border border-gray-300 px-4 py-2 text-center">Tinggi</td>
-                            </tr>
-                            <tr>
-                                <td class="border border-gray-300 px-4 py-2 font-medium">Jenis Data Optimal</td>
-                                <td class="border border-gray-300 px-4 py-2 text-center">Kategorikal</td>
-                                <td class="border border-gray-300 px-4 py-2 text-center">Numerik</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Download Tab -->
-            <div id="download" class="tab-content">
-                <div class="space-y-6">
-                    <h2 class="text-2xl font-bold">📥 Export Laporan</h2>
+                <div class="form-section">
+                    <h3>🎯 Hasil Implementasi</h3>
                     
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div class="bg-blue-50 p-4 rounded-lg text-center">
-                            <div class="text-2xl font-bold text-blue-600">85.0%</div>
-                            <div class="text-blue-800">Akurasi NB</div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="nb_akurasi">Akurasi Naive Bayes (%)</label>
+                            <input type="number" id="nb_akurasi" name="nb_akurasi" min="0" max="100" step="0.1" placeholder="Contoh: 85.7" required>
                         </div>
-                        <div class="bg-green-50 p-4 rounded-lg text-center">
-                            <div class="text-2xl font-bold text-green-600">90.0%</div>
-                            <div class="text-green-800">Akurasi KNN</div>
-                        </div>
-                        <div class="bg-purple-50 p-4 rounded-lg text-center">
-                            <div class="text-2xl font-bold text-purple-600" id="total-predictions">0</div>
-                            <div class="text-purple-800">Total Prediksi</div>
-                        </div>
-                        <div class="bg-orange-50 p-4 rounded-lg text-center">
-                            <div class="text-2xl font-bold text-orange-600">20</div>
-                            <div class="text-orange-800">Data Training</div>
+                        <div class="form-group">
+                            <label for="knn_akurasi">Akurasi KNN (%)</label>
+                            <input type="number" id="knn_akurasi" name="knn_akurasi" min="0" max="100" step="0.1" placeholder="Contoh: 78.9" required>
                         </div>
                     </div>
-
-                    <div class="bg-white p-6 border rounded-lg">
-                        <h3 class="text-lg font-semibold mb-4">📄 Format Export</h3>
-                        <button onclick="generateReport()" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg transition-colors">
-                            📄 Download TXT Report
-                        </button>
-                    </div>
-
-                    <div id="export-predictions-log" class="bg-white p-6 border rounded-lg" style="display: none;">
-                        <h3 class="text-lg font-semibold mb-4">📊 Log Prediksi</h3>
-                        <div id="export-predictions-list" class="space-y-2 max-h-64 overflow-y-auto"></div>
+                    
+                    <div class="form-group">
+                        <label for="kesimpulan">Kesimpulan & Analisis</label>
+                        <textarea id="kesimpulan" name="kesimpulan" placeholder="Tuliskan kesimpulan dari perbandingan kedua metode, insight yang didapat, dan rekomendasi" required></textarea>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Prediction Result Modal -->
-    <div id="prediction-modal" class="modal fixed inset-0 bg-black bg-opacity-50 items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-lg p-6 max-w-md w-full max-h-96 overflow-y-auto">
-            <div class="text-center mb-4">
-                <div class="text-4xl mb-2" id="modal-emoji">🎉</div>
-                <h3 class="text-xl font-bold" id="modal-title">Hasil Prediksi</h3>
-            </div>
-
-            <div class="space-y-4">
-                <div id="modal-input"></div>
-
-                <div class="text-center p-4 bg-gray-50 rounded-lg">
-                    <div class="text-xl font-bold" id="modal-result">LAYAK</div>
-                    <div class="text-sm text-gray-600">Mendapat Beasiswa</div>
-                    <div class="text-sm mt-2" id="modal-confidence">Confidence: 85.0%</div>
+                
+                <div class="form-section">
+                    <h3>🔗 Link Implementasi</h3>
+                    <div class="form-group">
+                        <label for="colab_link">Google Colab Notebook URL</label>
+                        <input type="url" id="colab_link" name="colab_link" placeholder="https://colab.research.google.com/drive/..." required>
+                    </div>
+                    <div class="form-group">
+                        <label for="streamlit_link">Streamlit App URL (jika ada)</label>
+                        <input type="url" id="streamlit_link" name="streamlit_link" placeholder="https://xxx.loca.lt atau link ngrok">
+                    </div>
                 </div>
-
-                <div id="modal-details"></div>
+                
+                <button type="submit" class="btn btn-full">
+                    🚀 Generate & Download Laporan ZIP
+                </button>
+            </form>
+            
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                Generating laporan dan gambar... Mohon tunggu sebentar.
             </div>
-
-            <div class="mt-6">
-                <button onclick="closeModal()" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg transition-colors">
-                    Tutup
+            
+            <div class="preview-section" id="previewSection" style="display: none;">
+                <h3>📄 Preview Laporan</h3>
+                <div class="report-preview" id="reportPreview"></div>
+                <button type="button" class="btn" onclick="downloadReport()">
+                    📥 Download ZIP Laporan
                 </button>
             </div>
         </div>
     </div>
 
     <script>
-        // Dataset
-        const dataset = [
-            { no: 1, ipk: 'Tinggi', pendapatan: 'Rendah', organisasi: 'Aktif', ipk_num: 3.8, pendapatan_num: 3, skor_org: 8, beasiswa: 'Ya' },
-            { no: 2, ipk: 'Tinggi', pendapatan: 'Rendah', organisasi: 'Tidak Aktif', ipk_num: 3.7, pendapatan_num: 4, skor_org: 2, beasiswa: 'Ya' },
-            { no: 3, ipk: 'Sedang', pendapatan: 'Rendah', organisasi: 'Aktif', ipk_num: 3.2, pendapatan_num: 3, skor_org: 7, beasiswa: 'Ya' },
-            { no: 4, ipk: 'Tinggi', pendapatan: 'Sedang', organisasi: 'Aktif', ipk_num: 3.6, pendapatan_num: 7, skor_org: 8, beasiswa: 'Ya' },
-            { no: 5, ipk: 'Sedang', pendapatan: 'Rendah', organisasi: 'Tidak Aktif', ipk_num: 3.1, pendapatan_num: 4, skor_org: 3, beasiswa: 'Tidak' },
-        ];
-
-        let predictions = [];
-
-        // Tab Management
-        function showTab(tabName) {
-            // Hide all tabs
-            const tabs = document.querySelectorAll('.tab-content');
-            tabs.forEach(tab => tab.classList.remove('active'));
-
-            // Remove active class from all buttons
-            const buttons = document.querySelectorAll('.tab-btn');
-            buttons.forEach(btn => {
-                btn.classList.remove('border-blue-500', 'text-blue-600');
-                btn.classList.add('border-transparent', 'text-gray-500');
+        let reportData = {};
+        
+        document.getElementById('reportForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            generateReport();
+        });
+        
+        async function generateReport() {
+            const formData = new FormData(document.getElementById('reportForm'));
+            reportData = Object.fromEntries(formData);
+            
+            // Show loading
+            document.getElementById('loading').style.display = 'block';
+            
+            // Generate report content
+            const reportContent = generateReportText(reportData);
+            
+            // Show preview
+            document.getElementById('reportPreview').innerHTML = `
+                <div style="white-space: pre-wrap; font-family: monospace; font-size: 14px; line-height: 1.6;">${reportContent}</div>
+            `;
+            
+            // Hide loading and show preview
+            setTimeout(() => {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('previewSection').style.display = 'block';
+                document.getElementById('previewSection').scrollIntoView({ behavior: 'smooth' });
+            }, 2000);
+        }
+        
+        function generateReportText(data) {
+            const currentDate = new Date().toLocaleDateString('id-ID', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
             });
+            
+            return `
+================================================================================
+                        LAPORAN MINI PROJECT 3 (MP3)
+                    KLASIFIKASI BEASISWA MAHASISWA MENGGUNAKAN
+                      NAIVE BAYES CLASSIFIER DAN K-NEAREST NEIGHBOR
+================================================================================
 
-            // Show selected tab
-            document.getElementById(tabName).classList.add('active');
+Kelompok     : ${data.kelompok}
+Kelas        : ${data.kelas}
+Tanggal      : ${currentDate}
 
-            // Mark button as active
-            event.target.classList.remove('border-transparent', 'text-gray-500');
-            event.target.classList.add('border-blue-500', 'text-blue-600');
+Anggota Kelompok:
+${data.anggota}
+
+================================================================================
+                                 ABSTRAK
+================================================================================
+
+Mini Project 3 ini bertujuan untuk mengimplementasikan dan membandingkan 
+algoritma Naive Bayes Classifier dan K-Nearest Neighbor (KNN) dalam kasus 
+klasifikasi kelayakan beasiswa mahasiswa. Dataset yang digunakan terdiri dari 
+20 data mahasiswa dengan 3 fitur utama: IPK, Pendapatan Orang Tua, dan 
+Aktivitas Organisasi.
+
+================================================================================
+                                PENDAHULUAN
+================================================================================
+
+1. LATAR BELAKANG
+
+Klasifikasi beasiswa merupakan salah satu permasalahan yang sering dihadapi
+oleh institusi pendidikan. Dengan bantuan machine learning, proses seleksi
+dapat dilakukan secara otomatis dan objektif.
+
+2. TUJUAN PENELITIAN
+
+- Mengimplementasikan algoritma Naive Bayes Classifier
+- Mengimplementasikan algoritma K-Nearest Neighbor (KNN)  
+- Membandingkan performa kedua algoritma
+- Membuat aplikasi web interaktif untuk prediksi beasiswa
+
+3. RUANG LINGKUP
+
+Penelitian ini terbatas pada dataset beasiswa mahasiswa dengan 20 sampel data
+dan 3 fitur prediksi.
+
+================================================================================
+                               METODOLOGI
+================================================================================
+
+1. DATASET
+
+Dataset terdiri dari 20 data mahasiswa dengan atribut:
+- IPK_Kategori: Tinggi, Sedang, Rendah
+- Pendapatan: Rendah, Sedang, Tinggi  
+- Aktivitas_Organisasi: Aktif, Tidak Aktif
+- Target: Beasiswa (Ya/Tidak)
+
+2. ALGORITMA YANG DIGUNAKAN
+
+a) Naive Bayes Classifier
+   - Menggunakan data kategorikal
+   - Menghitung prior probability dan likelihood
+   - Menggunakan teorema Bayes untuk prediksi
+
+b) K-Nearest Neighbor (KNN)
+   - Menggunakan data numerik
+   - Menghitung jarak Euclidean
+   - Klasifikasi berdasarkan voting mayoritas
+
+3. IMPLEMENTASI
+
+- Google Colab untuk development
+- Streamlit untuk web application
+- Python dengan library sklearn, pandas, numpy
+- Manual implementation untuk pemahaman konsep
+
+================================================================================
+                            HASIL DAN PEMBAHASAN
+================================================================================
+
+1. HASIL IMPLEMENTASI
+
+a) Naive Bayes Classifier
+   - Akurasi: ${data.nb_akurasi}%
+   - Menggunakan data kategorikal
+   - Perhitungan manual prior probability dan likelihood
+   
+b) K-Nearest Neighbor (KNN)
+   - Akurasi: ${data.knn_akurasi}%
+   - Menggunakan data numerik
+   - K=3 sebagai parameter optimal
+   - Perhitungan jarak Euclidean manual
+
+2. PERBANDINGAN ALGORITMA
+
+${data.nb_akurasi > data.knn_akurasi ? 
+`Naive Bayes menunjukkan performa yang lebih baik dengan selisih ${(data.nb_akurasi - data.knn_akurasi).toFixed(1)}%.
+Hal ini menunjukkan bahwa asumsi independensi fitur pada Naive Bayes cocok 
+dengan dataset beasiswa ini.` :
+`KNN menunjukkan performa yang lebih baik dengan selisih ${(data.knn_akurasi - data.nb_akurasi).toFixed(1)}%.
+Hal ini menunjukkan bahwa pola data beasiswa lebih sesuai dengan pendekatan
+similarity-based yang digunakan KNN.`}
+
+3. ANALISIS
+
+${data.kesimpulan}
+
+================================================================================
+                              IMPLEMENTASI WEB
+================================================================================
+
+Aplikasi web telah dibuat menggunakan Streamlit dengan fitur:
+
+1. VISUALISASI DATASET
+   - Tampilan data kategorikal untuk Naive Bayes
+   - Tampilan data numerik untuk KNN
+   - Statistik deskriptif dataset
+
+2. PREDIKSI INTERAKTIF
+   - Input form untuk data mahasiswa baru
+   - Prediksi real-time menggunakan kedua algoritma
+   - Penjelasan perhitungan step-by-step
+
+3. PERBANDINGAN MODEL
+   - Confusion matrix untuk kedua model
+   - Metrics evaluasi (akurasi, precision, recall)
+   - Visualisasi performa
+
+Link Implementasi:
+- Google Colab: ${data.colab_link}
+${data.streamlit_link ? `- Streamlit App: ${data.streamlit_link}` : '- Streamlit App: Running locally'}
+
+================================================================================
+                                KESIMPULAN
+================================================================================
+
+1. KESIMPULAN UMUM
+
+Berdasarkan hasil implementasi dan pengujian:
+
+- Kedua algoritma berhasil diimplementasikan dengan baik
+- ${data.nb_akurasi > data.knn_akurasi ? 'Naive Bayes' : 'KNN'} menunjukkan performa superior 
+- Aplikasi web memberikan interface yang user-friendly
+- Manual calculation membantu pemahaman konsep algoritma
+
+2. SARAN PENGEMBANGAN
+
+- Menambah jumlah data untuk hasil yang lebih robust
+- Implementasi algoritma tambahan (SVM, Decision Tree)
+- Feature engineering untuk meningkatkan akurasi
+- Deployment ke platform cloud untuk akses global
+
+================================================================================
+                                 REFERENSI
+================================================================================
+
+1. Han, J., Kamber, M., & Pei, J. (2011). Data Mining: Concepts and Techniques.
+2. Mitchell, T. M. (1997). Machine Learning. McGraw-Hill.
+3. Scikit-learn Documentation. https://scikit-learn.org/
+4. Streamlit Documentation. https://docs.streamlit.io/
+
+================================================================================
+                                 LAMPIRAN
+================================================================================
+
+Lampiran A: Source Code Google Colab
+Lampiran B: Screenshot Streamlit Application  
+Lampiran C: Confusion Matrix Visualization
+Lampiran D: Dataset Raw Data
+
+================================================================================
+                              AKHIR LAPORAN
+================================================================================
+
+Generated by MP3 Report Generator
+Tanggal: ${currentDate}
+            `;
         }
+        
+        async function downloadReport() {
+            const zip = new JSZip();
+            
+            // Add main report
+            const reportContent = generateReportText(reportData);
+            zip.file(`MP3_Kelompok${reportData.kelompok}_${reportData.kelas}_Laporan.txt`, reportContent);
+            
+            // Add sample images (you would replace these with actual screenshots)
+            await addSampleImages(zip);
+            
+            // Generate and download ZIP
+            const zipBlob = await zip.generateAsync({type: "blob"});
+            saveAs(zipBlob, `MP3_Kelompok${reportData.kelompok}_${reportData.kelas}_Complete.zip`);
+        }
+        
+        async function addSampleImages(zip) {
+            // Create sample visualizations
+            const imageFolder = zip.folder("images");
+            
+            // Dataset visualization
+            const datasetCanvas = await createDatasetVisualization();
+            const datasetBlob = await new Promise(resolve => datasetCanvas.toBlob(resolve));
+            imageFolder.file("01_dataset_overview.png", datasetBlob);
+            
+            // Naive Bayes visualization  
+            const nbCanvas = await createNaiveBayesVisualization();
+            const nbBlob = await new Promise(resolve => nbCanvas.toBlob(resolve));
+            imageFolder.file("02_naive_bayes_results.png", nbBlob);
+            
+            // KNN visualization
+            const knnCanvas = await createKNNVisualization();
+            const knnBlob = await new Promise(resolve => knnCanvas.toBlob(resolve));
+            imageFolder.file("03_knn_results.png", knnBlob);
+            
+            // Comparison chart
+            const compCanvas = await createComparisonChart();
+            const compBlob = await new Promise(resolve => compCanvas.toBlob(resolve));
+            imageFolder.file("04_algorithm_comparison.png", compBlob);
+            
+            // Add README for images
+            const readmeContent = `
+DAFTAR GAMBAR LAPORAN MP3
+========================
 
-        // Initialize dataset table
-        function initDatasetTable() {
-            const tableBody = document.getElementById('dataset-table');
-            tableBody.innerHTML = '';
+1. 01_dataset_overview.png
+   - Visualisasi dataset beasiswa mahasiswa
+   - Distribusi kelas target
+   - Summary statistik
 
-            dataset.forEach(row => {
-                const tr = document.createElement('tr');
-                tr.className = 'hover:bg-gray-50';
-                tr.innerHTML = `
-                    <td class="border border-gray-300 px-4 py-2 text-center">${row.no}</td>
-                    <td class="border border-gray-300 px-4 py-2">${row.ipk}</td>
-                    <td class="border border-gray-300 px-4 py-2">${row.pendapatan}</td>
-                    <td class="border border-gray-300 px-4 py-2">${row.organisasi}</td>
-                    <td class="border border-gray-300 px-4 py-2 text-center">${row.ipk_num}</td>
-                    <td class="border border-gray-300 px-4 py-2 text-center">${row.pendapatan_num}</td>
-                    <td class="border border-gray-300 px-4 py-2 text-center">${row.skor_org}</td>
-                    <td class="border border-gray-300 px-4 py-2 text-center">
-                        <span class="px-2 py-1 rounded text-xs ${row.beasiswa === 'Ya' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
-                            ${row.beasiswa}
-                        </span>
-                    </td>
-                `;
-                tableBody.appendChild(tr);
+2. 02_naive_bayes_results.png
+   - Confusion matrix Naive Bayes
+   - Prior probabilities
+   - Likelihood table
+
+3. 03_knn_results.png  
+   - Confusion matrix KNN
+   - Visualisasi tetangga terdekat
+   - Distance calculation
+
+4. 04_algorithm_comparison.png
+   - Perbandingan akurasi kedua algoritma
+   - Bar chart performa
+   - Summary metrics
+
+Gunakan gambar-gambar ini sebagai pendukung laporan PDF Anda.
+            `;
+            imageFolder.file("README.txt", readmeContent);
+        }
+        
+        async function createDatasetVisualization() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 800;
+            canvas.height = 600;
+            const ctx = canvas.getContext('2d');
+            
+            // Background
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, 800, 600);
+            
+            // Title
+            ctx.fillStyle = '#333333';
+            ctx.font = 'bold 24px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Dataset Beasiswa Mahasiswa - Overview', 400, 40);
+            
+            // Sample data visualization
+            ctx.font = '16px Arial';
+            ctx.textAlign = 'left';
+            ctx.fillText('Total Data: 20 mahasiswa', 50, 80);
+            ctx.fillText('Features: IPK, Pendapatan, Aktivitas Organisasi', 50, 110);
+            ctx.fillText('Target: Beasiswa (Ya/Tidak)', 50, 140);
+            
+            // Bar chart for target distribution
+            ctx.fillStyle = '#4CAF50';
+            ctx.fillRect(100, 200, 120, 150);
+            ctx.fillStyle = '#f44336';  
+            ctx.fillRect(250, 250, 120, 100);
+            
+            ctx.fillStyle = '#333333';
+            ctx.textAlign = 'center';
+            ctx.fillText('Ya (11)', 160, 380);
+            ctx.fillText('Tidak (9)', 310, 380);
+            ctx.fillText('Distribusi Target Beasiswa', 400, 420);
+            
+            return canvas;
+        }
+        
+        async function createNaiveBayesVisualization() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 800;
+            canvas.height = 600;
+            const ctx = canvas.getContext('2d');
+            
+            // Background
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, 800, 600);
+            
+            // Title
+            ctx.fillStyle = '#333333';
+            ctx.font = 'bold 24px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Naive Bayes Classifier Results', 400, 40);
+            
+            // Confusion Matrix
+            ctx.font = '16px Arial';
+            ctx.fillText('Confusion Matrix', 150, 100);
+            
+            // Matrix boxes
+            ctx.fillStyle = '#e8f5e8';
+            ctx.fillRect(50, 120, 80, 60);  // TN
+            ctx.fillStyle = '#fff2e8';
+            ctx.fillRect(130, 120, 80, 60); // FP
+            ctx.fillStyle = '#fff2e8'; 
+            ctx.fillRect(50, 180, 80, 60);  // FN
+            ctx.fillStyle = '#e8f5e8';
+            ctx.fillRect(130, 180, 80, 60); // TP
+            
+            // Matrix values (sample)
+            ctx.fillStyle = '#333333';
+            ctx.textAlign = 'center';
+            ctx.fillText('8', 90, 155);
+            ctx.fillText('1', 170, 155);
+            ctx.fillText('2', 90, 215);
+            ctx.fillText('9', 170, 215);
+            
+            // Accuracy display
+            ctx.font = 'bold 18px Arial';
+            ctx.fillText(`Akurasi: ${reportData.nb_akurasi}%`, 400, 300);
+            
+            return canvas;
+        }
+        
+        async function createKNNVisualization() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 800;
+            canvas.height = 600;
+            const ctx = canvas.getContext('2d');
+            
+            // Background
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, 800, 600);
+            
+            // Title
+            ctx.fillStyle = '#333333';
+            ctx.font = 'bold 24px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('K-Nearest Neighbor Results', 400, 40);
+            
+            // Scatter plot simulation
+            ctx.font = '14px Arial';
+            ctx.fillText('Visualisasi Data Points (IPK vs Pendapatan)', 400, 80);
+            
+            // Sample scatter points
+            const points = [
+                {x: 150, y: 150, class: 'Ya'},
+                {x: 200, y: 180, class: 'Ya'},
+                {x: 250, y: 120, class: 'Tidak'},
+                {x: 300, y: 200, class: 'Ya'},
+                {x: 350, y: 160, class: 'Tidak'},
+                {x: 400, y: 140, class: 'Ya'},
+            ];
+            
+            points.forEach(point => {
+                ctx.fillStyle = point.class === 'Ya' ? '#4CAF50' : '#f44336';
+                ctx.beginPath();
+                ctx.arc(point.x, point.y, 8, 0, 2 * Math.PI);
+                ctx.fill();
             });
+            
+            // Test point
+            ctx.fillStyle = '#2196F3';
+            ctx.beginPath();
+            ctx.arc(275, 175, 10, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            ctx.fillStyle = '#333333';
+            ctx.fillText('Test Point', 285, 180);
+            
+            // Accuracy
+            ctx.font = 'bold 18px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(`Akurasi: ${reportData.knn_akurasi}%`, 400, 350);
+            
+            return canvas;
         }
-
-        // Naive Bayes Calculator
-        function calculateNaiveBayes(ipk, pendapatan, organisasi) {
-            const priors = { 'Ya': 0.6, 'Tidak': 0.4 };
-            const likelihoods = {
-                'Ya': {
-                    ipk: { 'Tinggi': 0.73, 'Sedang': 0.27, 'Rendah': 0.1 },
-                    pendapatan: { 'Rendah': 0.6, 'Sedang': 0.3, 'Tinggi': 0.1 },
-                    organisasi: { 'Aktif': 0.8, 'Tidak Aktif': 0.2 }
-                },
-                'Tidak': {
-                    ipk: { 'Tinggi': 0.1, 'Sedang': 0.33, 'Rendah': 0.56 },
-                    pendapatan: { 'Rendah': 0.25, 'Sedang': 0.37, 'Tinggi': 0.38 },
-                    organisasi: { 'Aktif': 0.62, 'Tidak Aktif': 0.38 }
-                }
-            };
-
-            const yaProb = priors['Ya'] * 
-                likelihoods['Ya'].ipk[ipk] * 
-                likelihoods['Ya'].pendapatan[pendapatan] * 
-                likelihoods['Ya'].organisasi[organisasi];
-
-            const tidakProb = priors['Tidak'] * 
-                likelihoods['Tidak'].ipk[ipk] * 
-                likelihoods['Tidak'].pendapatan[pendapatan] * 
-                likelihoods['Tidak'].organisasi[organisasi];
-
-            return {
-                prediction: yaProb > tidakProb ? 'Ya' : 'Tidak',
-                yaProb: yaProb,
-                tidakProb: tidakProb,
-                confidence: Math.max(yaProb, tidakProb) / (yaProb + tidakProb)
-            };
+        
+        async function createComparisonChart() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 800;
+            canvas.height = 600;
+            const ctx = canvas.getContext('2d');
+            
+            // Background
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, 800, 600);
+            
+            // Title
+            ctx.fillStyle = '#333333';
+            ctx.font = 'bold 24px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Perbandingan Akurasi Algoritma', 400, 40);
+            
+            // Bar chart
+            const nbHeight = (reportData.nb_akurasi / 100) * 300;
+            const knnHeight = (reportData.knn_akurasi / 100) * 300;
+            
+            // Naive Bayes bar
+            ctx.fillStyle = '#4CAF50';
+            ctx.fillRect(200, 400 - nbHeight, 80, nbHeight);
+            
+            // KNN bar  
+            ctx.fillStyle = '#2196F3';
+            ctx.fillRect(350, 400 - knnHeight, 80, knnHeight);
+            
+            // Labels
+            ctx.fillStyle = '#333333';
+            ctx.font = '16px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Naive Bayes', 240, 430);
+            ctx.fillText('KNN', 390, 430);
+            
+            // Values
+            ctx.font = 'bold 14px Arial';
+            ctx.fillText(`${reportData.nb_akurasi}%`, 240, 410 - nbHeight);
+            ctx.fillText(`${reportData.knn_akurasi}%`, 390, 410 - knnHeight);
+            
+            // Winner indication
+            const winner = reportData.nb_akurasi > reportData.knn_akurasi ? 'Naive Bayes' : 'KNN';
+            ctx.font = 'bold 18px Arial';
+            ctx.fillStyle = '#FF9800';
+            ctx.fillText(`Winner: ${winner}`, 400, 480);
+            
+            return canvas;
         }
-
-        // K-NN Calculator
-        function calculateKNN(ipkNum, pendapatanNum, skorOrg, k = 3) {
-            const distances = dataset.map(row => ({
-                ...row,
-                distance: Math.sqrt(
-                    Math.pow(ipkNum - row.ipk_num, 2) + 
-                    Math.pow(pendapatanNum - row.pendapatan_num, 2) + 
-                    Math.pow(skorOrg - row.skor_org, 2)
-                )
-            })).sort((a, b) => a.distance - b.distance).slice(0, k);
-
-            const votes = distances.reduce((acc, item) => {
-                acc[item.beasiswa] = (acc[item.beasiswa] || 0) + 1;
-                return acc;
-            }, {});
-
-            const prediction = Object.keys(votes).reduce((a, b) => votes[a] > votes[b] ? a : b);
-            
-            return {
-                prediction,
-                neighbors: distances,
-                votes,
-                confidence: Math.max(...Object.values(votes)) / k
-            };
-        }
-
-        // Handle Naive Bayes Prediction
-        function handleNBPrediction(event) {
-            event.preventDefault();
-            const formData = new FormData(event.target);
-            const ipk = formData.get('ipk');
-            const pendapatan = formData.get('pendapatan');
-            const organisasi = formData.get('organisasi');
-
-            const result = calculateNaiveBayes(ipk, pendapatan, organisasi);
-            
-            const predText = `NB: IPK ${ipk}, Pendapatan ${pendapatan}, Organisasi ${organisasi} → ${result.prediction}`;
-            predictions.push(predText);
-            
-            showPredictionModal('Naive Bayes', { ipk, pendapatan, organisasi }, result);
-            updatePredictionsList();
-        }
-
-        // Handle K-NN Prediction
-        function handleKNNPrediction(event) {
-            event.preventDefault();
-            const formData = new FormData(event.target);
-            const ipkNum = parseFloat(formData.get('ipkNum'));
-            const pendapatanNum = parseInt(formData.get('pendapatanNum'));
-            const skorOrg = parseInt(formData.get('skorOrg'));
-            const k = parseInt(formData.get('k'));
-
-            const result = calculateKNN(ipkNum, pendapatanNum, skorOrg, k);
-            
-            const predText = `KNN(K=${k}): IPK ${ipkNum}, Pendapatan ${pendapatanNum}jt, Organisasi ${skorOrg} → ${result.prediction}`;
-            predictions.push(predText);
-            
-            showPredictionModal('K-NN', { ipkNum, pendapatanNum, skorOrg, k }, result);
-            updatePredictionsList();
-        }
-
-        // Show Prediction Modal
-        function showPredictionModal(type, input, result) {
-            const modal = document.getElementById('prediction-modal');
-            const emoji = document.getElementById('modal-emoji');
-            const title = document.getElementById('modal-title');
-            const inputDiv = document.getElementById('modal-input');
-            const resultDiv = document.getElementById('modal-result');
-            const confidence = document.getElementById('modal-confidence');
-            const details = document.getElementById('modal-details');
-
-            emoji.textContent = result.prediction === 'Ya' ? '🎉' : '❌';
-            title.textContent = `Hasil Prediksi ${type}`;
-            
-            if (type === 'Naive Bayes') {
-                inputDiv.innerHTML = `
-                    <h4 class="font-semibold">Input:</h4>
-                    <div class="text-sm space-y-1">
-                        <div>IPK: ${input.ipk}</div>
-                        <div>Pendapatan: ${input.pendapatan}</div>
-                        <div>Organisasi: ${input.organisasi}</div>
-                    </div>
-                `;
-                details.innerHTML = `
-                    <div>
-                        <h4 class="font-semibold">Probabilitas:</h4>
+    </script>
+</body>
+</html>
