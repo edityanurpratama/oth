@@ -479,55 +479,77 @@
     </div>
 
     <script>
+        // Sample example data
+        const exampleData = {
+            kelompok: "05",
+            kelas: "5D",
+            matkul: "Machine Learning",
+            dosen: "Dr. Ahmad Susanto, M.T.",
+            anggota: "1. Andi Pratama - 2020012345\n2. Sari Dewi - 2020012346\n3. Budi Santoso - 2020012347\n4. Maya Sari - 2020012348",
+            total_data: "100",
+            fitur_count: "4",
+            class_distribution: "Ya: 55, Tidak: 45",
+            fitur_list: "IPK, Pendapatan Orang Tua, Aktivitas Organisasi, Prestasi Non-Akademik",
+            nb_akurasi: "87.5",
+            nb_precision: "85.2",
+            nb_recall: "89.1",
+            nb_f1: "87.1",
+            nb_confusion: "17,2,3,28",
+            knn_k: "5",
+            knn_akurasi: "82.0",
+            knn_precision: "83.3",
+            knn_recall: "80.6",
+            knn_confusion: "16,3,6,25",
+            perbandingan: `Berdasarkan hasil eksperimen, Naive Bayes menunjukkan performa lebih baik dengan akurasi 87.5% dibandingkan KNN yang mencapai 82.0%. Naive Bayes unggul dalam hal recall (89.1%) yang berarti lebih baik dalam mendeteksi mahasiswa yang layak mendapat beasiswa. 
+
+Namun KNN memiliki precision yang cukup kompetitif (83.3%) dan lebih stabil terhadap data outlier. Naive Bayes lebih cocok untuk dataset dengan fitur kategorikal dan asumsi independensi yang relatif terpenuhi, sedangkan KNN lebih fleksibel tanpa asumsi distribusi data tertentu.
+
+Waktu training Naive Bayes lebih cepat (0.05 detik) dibandingkan KNN (0.12 detik), namun untuk prediksi real-time, perbedaan ini tidak signifikan mengingat ukuran dataset yang relatif kecil.`,
+            kesimpulan: `Penelitian ini berhasil mengimplementasikan dan membandingkan algoritma Naive Bayes dan K-Nearest Neighbor untuk klasifikasi kelayakan beasiswa mahasiswa. Hasil menunjukkan bahwa Naive Bayes memberikan performa terbaik dengan akurasi 87.5%, precision 85.2%, recall 89.1%, dan F1-score 87.1%.
+
+Sistem klasifikasi yang dikembangkan dapat membantu institusi pendidikan dalam mengotomatisasi proses seleksi beasiswa dengan tingkat akurasi yang baik. Fitur IPK dan Pendapatan Orang Tua menjadi faktor paling berpengaruh dalam penentuan kelayakan beasiswa.
+
+Implementasi berhasil dikembangkan dalam bentuk aplikasi web interaktif menggunakan Streamlit yang memudahkan pengguna dalam melakukan prediksi secara real-time.`,
+            saran: `Untuk penelitian selanjutnya, disarankan untuk:
+
+1. Menambah ukuran dataset untuk meningkatkan generalisasi model
+2. Menerapkan teknik feature selection untuk mengidentifikasi fitur paling optimal
+3. Mengimplementasikan algoritma ensemble seperti Random Forest atau Gradient Boosting
+4. Menambahkan fitur preprocessing lebih lanjut seperti handling missing values dan outlier detection
+5. Mengintegrasikan sistem dengan database institusi untuk implementasi production-ready
+6. Melakukan cross-validation dengan k-fold untuk evaluasi yang lebih robust
+7. Menerapkan hyperparameter tuning untuk optimasi performa algoritma`,
+            colab_link: "https://colab.research.google.com/drive/1abc123def456ghi789jkl0mn",
+            streamlit_link: "https://scholarship-classifier-mp3.streamlit.app",
+            github_link: "https://github.com/kelompok5/mp3-scholarship-classification"
+        };
+
+        // Fungsi untuk mengisi form dengan data contoh
+        function autoFillExample() {
+            Object.keys(exampleData).forEach(key => {
+                const element = document.getElementById(key);
+                if (element) {
+                    element.value = exampleData[key];
+                }
+            });
+            
+            // Show success message
+            const alert = document.createElement('div');
+            alert.className = 'alert alert-success';
+            alert.innerHTML = '<strong>✅ Berhasil!</strong> Form telah diisi dengan data contoh. Anda dapat langsung generate report atau modifikasi data sesuai kebutuhan.';
+            
+            const form = document.getElementById('reportForm');
+            form.insertBefore(alert, form.firstChild);
+            
+            setTimeout(() => {
+                alert.remove();
+            }, 5000);
+        }
+
         // Pastikan semua fungsi didefinisikan sebelum digunakan
         document.addEventListener('DOMContentLoaded', function() {
             // Inisialisasi variabel global
             let reportContent = '';
-            
-            // Sample example data
-            const exampleData = {
-                kelompok: "05",
-                kelas: "5D",
-                matkul: "Machine Learning",
-                dosen: "Dr. Ahmad Susanto, M.T.",
-                anggota: "1. Andi Pratama - 2020012345\n2. Sari Dewi - 2020012346\n3. Budi Santoso - 2020012347\n4. Maya Sari - 2020012348",
-                total_data: "100",
-                fitur_count: "4",
-                class_distribution: "Ya: 55, Tidak: 45",
-                fitur_list: "IPK, Pendapatan Orang Tua, Aktivitas Organisasi, Prestasi Non-Akademik",
-                nb_akurasi: "87.5",
-                nb_precision: "85.2",
-                nb_recall: "89.1",
-                nb_f1: "87.1",
-                nb_confusion: "17,2,3,28",
-                knn_k: "5",
-                knn_akurasi: "82.0",
-                knn_precision: "83.3",
-                knn_recall: "80.6",
-                knn_confusion: "16,3,6,25",
-                perbandingan: `Berdasarkan hasil eksperimen, Naive Bayes menunjukkan performa lebih baik dengan akurasi 87.5% dibandingkan KNN yang mencapai 82.0%. Naive Bayes unggul dalam hal recall (89.1%) yang berarti lebih baik dalam mendeteksi mahasiswa yang layak mendapat beasiswa. 
-
-            Namun KNN memiliki precision yang cukup kompetitif (83.3%) dan lebih stabil terhadap data outlier. Naive Bayes lebih cocok untuk dataset dengan fitur kategorikal dan asumsi independensi yang relatif terpenuhi, sedangkan KNN lebih fleksibel tanpa asumsi distribusi data tertentu.
-
-            Waktu training Naive Bayes lebih cepat (0.05 detik) dibandingkan KNN (0.12 detik), namun untuk prediksi real-time, perbedaan ini tidak signifikan mengingat ukuran dataset yang relatif kecil.`,
-                kesimpulan: `Penelitian ini berhasil mengimplementasikan dan membandingkan algoritma Naive Bayes dan K-Nearest Neighbor untuk klasifikasi kelayakan beasiswa mahasiswa. Hasil menunjukkan bahwa Naive Bayes memberikan performa terbaik dengan akurasi 87.5%, precision 85.2%, recall 89.1%, dan F1-score 87.1%.
-
-            Sistem klasifikasi yang dikembangkan dapat membantu institusi pendidikan dalam mengotomatisasi proses seleksi beasiswa dengan tingkat akurasi yang baik. Fitur IPK dan Pendapatan Orang Tua menjadi faktor paling berpengaruh dalam penentuan kelayakan beasiswa.
-
-            Implementasi berhasil dikembangkan dalam bentuk aplikasi web interaktif menggunakan Streamlit yang memudahkan pengguna dalam melakukan prediksi secara real-time.`,
-                saran: `Untuk penelitian selanjutnya, disarankan untuk:
-
-            1. Menambah ukuran dataset untuk meningkatkan generalisasi model
-            2. Menerapkan teknik feature selection untuk mengidentifikasi fitur paling optimal
-            3. Mengimplementasikan algoritma ensemble seperti Random Forest atau Gradient Boosting
-            4. Menambahkan fitur preprocessing lebih lanjut seperti handling missing values dan outlier detection
-            5. Mengintegrasikan sistem dengan database institusi untuk implementasi production-ready
-            6. Melakukan cross-validation dengan k-fold untuk evaluasi yang lebih robust
-            7. Menerapkan hyperparameter tuning untuk optimasi performa algoritma`,
-                colab_link: "https://colab.research.google.com/drive/1abc123def456ghi789jkl0mn",
-                streamlit_link: "https://scholarship-classifier-mp3.streamlit.app",
-                github_link: "https://github.com/kelompok5/mp3-scholarship-classification"
-            };
             
             // Setup event listeners
             document.getElementById('autoFillBtn').addEventListener('click', autoFillExample);
@@ -540,27 +562,6 @@
             });
             
             // Definisikan fungsi-fungsi
-            window.autoFillExample = function() {
-                Object.keys(exampleData).forEach(key => {
-                    const element = document.getElementById(key);
-                    if (element) {
-                        element.value = exampleData[key];
-                    }
-                });
-                
-                // Show success message
-                const alert = document.createElement('div');
-                alert.className = 'alert alert-success';
-                alert.innerHTML = '<strong>✅ Berhasil!</strong> Form telah diisi dengan data contoh. Anda dapat langsung generate report atau modifikasi data sesuai kebutuhan.';
-                
-                const form = document.getElementById('reportForm');
-                form.insertBefore(alert, form.firstChild);
-                
-                setTimeout(() => {
-                    alert.remove();
-                }, 5000);
-            };
-            
             window.previewReport = function() {
                 const formData = new FormData(document.getElementById('reportForm'));
                 const data = Object.fromEntries(formData);
@@ -745,7 +746,7 @@ Kekurangan Naive Bayes:
 3. K-NEAREST NEIGHBOR (KNN)
 
 K-Nearest Neighbor adalah algoritma lazy learning yang melakukan klasifikasi 
-berdasarkan kedekatan dengan k tetangga terdekat dalam ruang fitur. Algoritma 
+berdasarkan kedekatan dengan k tetangga terdekt dalam ruang fitur. Algoritma 
 ini tidak membangun model eksplisit selama training, tetapi menyimpan semua 
 data training untuk digunakan saat prediksi.
 
