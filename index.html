@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Modul_1_</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧮</text></svg>">
     <style>
         * {
             margin: 0;
@@ -38,6 +39,7 @@
             width: 12px;
             height: 12px;
             border-radius: 50%;
+            cursor: pointer;
         }
 
         .close { background-color: #ff5f57; }
@@ -68,12 +70,28 @@
             font-weight: normal;
             margin-bottom: 8px;
             color: #ffffff;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+
+        .header-text h2:hover {
+            background-color: rgba(255, 255, 255, 0.1);
         }
 
         .header-text p {
             font-size: 16px;
             margin: 4px 0;
             color: #cccccc;
+            cursor: pointer;
+            padding: 3px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+
+        .header-text p:hover {
+            background-color: rgba(255, 255, 255, 0.1);
         }
 
         .plots-container {
@@ -160,24 +178,31 @@
             top: 10px;
             right: 10px;
             display: flex;
-            gap: 5px;
+            gap: 2px;
         }
 
         .toolbar-icon {
-            width: 20px;
-            height: 20px;
+            width: 24px;
+            height: 24px;
             background-color: #444;
             border: 1px solid #666;
             cursor: pointer;
-            font-size: 10px;
+            font-size: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
             color: #ccc;
+            transition: all 0.2s;
         }
 
         .toolbar-icon:hover {
             background-color: #555;
+            border-color: #777;
+        }
+
+        .toolbar-icon.active {
+            background-color: #666;
+            border-color: #888;
         }
 
         .buttons-container {
@@ -209,34 +234,131 @@
             background: linear-gradient(to bottom, #3a3a3a, #2a2a2a);
             transform: translateY(1px);
         }
+
+        .status-bar {
+            background-color: #333;
+            padding: 5px 20px;
+            border-top: 1px solid #555;
+            font-size: 12px;
+            color: #aaa;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .edit-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: #383838;
+            padding: 30px;
+            border-radius: 8px;
+            border: 1px solid #555;
+            min-width: 400px;
+        }
+
+        .modal-header {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #fff;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #ccc;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            background: #2a2a2a;
+            border: 1px solid #555;
+            color: #fff;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #4a9eff;
+            box-shadow: 0 0 0 2px rgba(74, 158, 255, 0.2);
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .modal-button {
+            padding: 8px 16px;
+            border: 1px solid #666;
+            background: #4a4a4a;
+            color: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .modal-button:hover {
+            background: #5a5a5a;
+        }
+
+        .modal-button.primary {
+            background: #4a9eff;
+            border-color: #4a9eff;
+        }
+
+        .modal-button.primary:hover {
+            background: #3a8eef;
+        }
     </style>
 </head>
 <body>
     <div class="window-header">
         <div class="window-controls">
-            <div class="window-control close"></div>
-            <div class="window-control minimize"></div>
-            <div class="window-control maximize"></div>
+            <div class="window-control close" onclick="closeWindow()"></div>
+            <div class="window-control minimize" onclick="minimizeWindow()"></div>
+            <div class="window-control maximize" onclick="maximizeWindow()"></div>
         </div>
         <div class="window-title">Modul_1_</div>
     </div>
 
     <div class="content">
         <div class="header-text">
-            <h2>Tugas 1 : Pengenalan Matlab</h2>
-            <p>Nama : Aam Shodiqul Munir</p>
-            <p>NIM : -</p>
+            <h2 id="tugasTitle" onclick="editTugas()">Tugas 1 : Pengenalan Matlab</h2>
+            <p id="namaText" onclick="editNama()">Nama : Aam Shodiqul Munir</p>
+            <p id="nimText" onclick="editNim()">NIM : -</p>
         </div>
 
         <div class="plots-container">
             <div class="plot-container">
                 <div class="plot-area">
                     <div class="plot-toolbar">
-                        <div class="toolbar-icon" title="Pan">⚏</div>
-                        <div class="toolbar-icon" title="Zoom">🔍</div>
-                        <div class="toolbar-icon" title="Cursor">↖</div>
-                        <div class="toolbar-icon" title="Rotate">↻</div>
-                        <div class="toolbar-icon" title="Data Tips">📍</div>
+                        <div class="toolbar-icon" title="Pan" onclick="selectTool(this, 'pan')">⚏</div>
+                        <div class="toolbar-icon" title="Zoom" onclick="selectTool(this, 'zoom')">🔍</div>
+                        <div class="toolbar-icon" title="Cursor" onclick="selectTool(this, 'cursor')">↖</div>
+                        <div class="toolbar-icon" title="Rotate" onclick="selectTool(this, 'rotate')">↻</div>
+                        <div class="toolbar-icon" title="Data Tips" onclick="selectTool(this, 'datatips')">📍</div>
                     </div>
                     
                     <div class="plot-grid"></div>
@@ -267,11 +389,11 @@
             <div class="plot-container">
                 <div class="plot-area">
                     <div class="plot-toolbar">
-                        <div class="toolbar-icon" title="Pan">⚏</div>
-                        <div class="toolbar-icon" title="Zoom">🔍</div>
-                        <div class="toolbar-icon" title="Cursor">↖</div>
-                        <div class="toolbar-icon" title="Rotate">↻</div>
-                        <div class="toolbar-icon" title="Data Tips">📍</div>
+                        <div class="toolbar-icon" title="Pan" onclick="selectTool(this, 'pan')">⚏</div>
+                        <div class="toolbar-icon" title="Zoom" onclick="selectTool(this, 'zoom')">🔍</div>
+                        <div class="toolbar-icon" title="Cursor" onclick="selectTool(this, 'cursor')">↖</div>
+                        <div class="toolbar-icon" title="Rotate" onclick="selectTool(this, 'rotate')">↻</div>
+                        <div class="toolbar-icon" title="Data Tips" onclick="selectTool(this, 'datatips')">📍</div>
                     </div>
                     
                     <div class="plot-grid"></div>
@@ -293,6 +415,7 @@
                         <span>0.8</span>
                         <span>0.6</span>
                         <span>0.4</span>
+                        <span>0.2</span>
                         <span>0.2</span>
                         <span>0</span>
                     </div>
@@ -306,49 +429,255 @@
         </div>
     </div>
 
+    <div class="status-bar">
+        <span>Status: Ready</span>
+        <span id="dbStatus">Database: Connecting...</span>
+    </div>
+
+    <!-- Edit Modal -->
+    <div class="edit-modal" id="editModal">
+        <div class="modal-content">
+            <div class="modal-header" id="modalTitle">Edit Data</div>
+            <div class="form-group">
+                <label for="editInput" id="editLabel">Value:</label>
+                <input type="text" id="editInput" placeholder="Enter value...">
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-button" onclick="closeModal()">Batal</button>
+                <button class="modal-button primary" onclick="saveEdit()">Simpan</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        function tambahData() {
-            const tugas = document.getElementById('tugasInput').value;
-            const nama = document.getElementById('namaInput').value;
-            const nim = document.getElementById('nimInput').value;
-            alert(`Fungsi Tambah dipanggil\nTugas: ${tugas}\nNama: ${nama}\nNIM: ${nim}`);
+        // Database configuration using JSONBin.io (free online database)
+        const DB_CONFIG = {
+            binId: '676063b5acd3cb34a8b4e2cd', // Public bin for demo
+            apiKey: '$2a$10$oJvJn8/JmKkqOqb5K2nOm.9qDkJwKoV1G.jzWQ4VV9YkGX5YrODzW', // Demo key
+            baseUrl: 'https://api.jsonbin.io/v3/b'
+        };
+
+        let currentData = {
+            tugas: "Tugas 1 : Pengenalan Matlab",
+            nama: "Aam Shodiqul Munir", 
+            nim: "-",
+            lastUpdated: new Date().toISOString()
+        };
+
+        let editingField = null;
+
+        // Initialize database connection
+        async function initDatabase() {
+            try {
+                updateDbStatus('Connecting...');
+                await loadFromDatabase();
+                updateDbStatus('Connected ✓');
+            } catch (error) {
+                console.error('Database init error:', error);
+                updateDbStatus('Offline Mode');
+            }
         }
 
-        function prosesData() {
-            const tugas = document.getElementById('tugasInput').value;
-            const nama = document.getElementById('namaInput').value;
-            const nim = document.getElementById('nimInput').value;
-            alert(`Fungsi Proses dipanggil\nTugas: ${tugas}\nNama: ${nama}\nNIM: ${nim}`);
-        }
-
-        function updateTugas() {
-            const tugas = document.getElementById('tugasInput').value;
-            console.log('Tugas diupdate:', tugas);
-        }
-
-        function updateNama() {
-            const nama = document.getElementById('namaInput').value;
-            console.log('Nama diupdate:', nama);
-        }
-
-        function updateNim() {
-            const nim = document.getElementById('nimInput').value;
-            console.log('NIM diupdate:', nim);
-        }
-
-        // Simulasi interaktivitas toolbar
-        document.querySelectorAll('.toolbar-icon').forEach(icon => {
-            icon.addEventListener('click', function() {
-                // Reset semua toolbar icons
-                document.querySelectorAll('.toolbar-icon').forEach(i => {
-                    i.style.backgroundColor = '#444';
+        // Load data from online database
+        async function loadFromDatabase() {
+            try {
+                const response = await fetch(`${DB_CONFIG.baseUrl}/${DB_CONFIG.binId}/latest`, {
+                    method: 'GET',
+                    headers: {
+                        'X-Master-Key': DB_CONFIG.apiKey,
+                        'Content-Type': 'application/json'
+                    }
                 });
-                
-                // Highlight yang dipilih
-                this.style.backgroundColor = '#666';
-                
-                console.log('Toolbar tool selected:', this.title);
+
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.record) {
+                        currentData = result.record;
+                        updateDisplay();
+                        console.log('Data loaded from database:', currentData);
+                    }
+                }
+            } catch (error) {
+                console.error('Load from database error:', error);
+            }
+        }
+
+        // Save data to online database
+        async function saveToDatabase() {
+            try {
+                updateDbStatus('Saving...');
+                currentData.lastUpdated = new Date().toISOString();
+
+                const response = await fetch(`${DB_CONFIG.baseUrl}/${DB_CONFIG.binId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'X-Master-Key': DB_CONFIG.apiKey,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(currentData)
+                });
+
+                if (response.ok) {
+                    updateDbStatus('Saved ✓');
+                    setTimeout(() => updateDbStatus('Connected ✓'), 2000);
+                    console.log('Data saved to database:', currentData);
+                } else {
+                    throw new Error('Save failed');
+                }
+            } catch (error) {
+                console.error('Save to database error:', error);
+                updateDbStatus('Save Failed ✗');
+                setTimeout(() => updateDbStatus('Offline Mode'), 2000);
+            }
+        }
+
+        // Update database status display
+        function updateDbStatus(status) {
+            const dbStatus = document.getElementById('dbStatus');
+            if (dbStatus) {
+                dbStatus.textContent = `Database: ${status}`;
+            }
+        }
+
+        // Update display with current data
+        function updateDisplay() {
+            document.getElementById('tugasTitle').textContent = currentData.tugas;
+            document.getElementById('namaText').textContent = `Nama : ${currentData.nama}`;
+            document.getElementById('nimText').textContent = `NIM : ${currentData.nim}`;
+        }
+
+        // Edit functions
+        function editTugas() {
+            openEditModal('tugas', 'Edit Tugas', 'Judul Tugas', currentData.tugas);
+        }
+
+        function editNama() {
+            openEditModal('nama', 'Edit Nama', 'Nama Lengkap', currentData.nama);
+        }
+
+        function editNim() {
+            openEditModal('nim', 'Edit NIM', 'Nomor Induk Mahasiswa', currentData.nim);
+        }
+
+        function openEditModal(field, title, label, value) {
+            editingField = field;
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('editLabel').textContent = label + ':';
+            document.getElementById('editInput').value = value;
+            document.getElementById('editModal').style.display = 'flex';
+            document.getElementById('editInput').focus();
+        }
+
+        function closeModal() {
+            document.getElementById('editModal').style.display = 'none';
+            editingField = null;
+        }
+
+        async function saveEdit() {
+            if (!editingField) return;
+
+            const newValue = document.getElementById('editInput').value.trim();
+            if (newValue) {
+                currentData[editingField] = newValue;
+                updateDisplay();
+                await saveToDatabase();
+            }
+            closeModal();
+        }
+
+        // Action button functions
+        async function tambahData() {
+            const message = `Fungsi Tambah Data:\n\n` +
+                          `Tugas: ${currentData.tugas}\n` +
+                          `Nama: ${currentData.nama}\n` +
+                          `NIM: ${currentData.nim}\n\n` +
+                          `Last Updated: ${new Date(currentData.lastUpdated).toLocaleString('id-ID')}`;
+            
+            alert(message);
+            
+            // Log activity to database
+            await saveToDatabase();
+        }
+
+        async function prosesData() {
+            const message = `Fungsi Proses Data:\n\n` +
+                          `Tugas: ${currentData.tugas}\n` +
+                          `Nama: ${currentData.nama}\n` +
+                          `NIM: ${currentData.nim}\n\n` +
+                          `Processing...`;
+            
+            alert(message);
+            
+            // Log activity to database
+            await saveToDatabase();
+        }
+
+        // Toolbar functions
+        function selectTool(element, tool) {
+            // Remove active class from all toolbar icons
+            document.querySelectorAll('.toolbar-icon').forEach(icon => {
+                icon.classList.remove('active');
             });
+            
+            // Add active class to selected tool
+            element.classList.add('active');
+            
+            updateStatus(`Tool selected: ${tool}`);
+            console.log('Tool selected:', tool);
+        }
+
+        // Window controls
+        function closeWindow() {
+            if (confirm('Apakah Anda yakin ingin menutup aplikasi?')) {
+                window.close();
+            }
+        }
+
+        function minimizeWindow() {
+            updateStatus('Window minimized');
+        }
+
+        function maximizeWindow() {
+            if (document.fullscreenElement) {
+                document.exitFullscreen();
+                updateStatus('Window restored');
+            } else {
+                document.documentElement.requestFullscreen();
+                updateStatus('Window maximized');
+            }
+        }
+
+        function updateStatus(message) {
+            const statusElement = document.querySelector('.status-bar span');
+            if (statusElement) {
+                statusElement.textContent = `Status: ${message}`;
+                setTimeout(() => {
+                    statusElement.textContent = 'Status: Ready';
+                }, 3000);
+            }
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && document.getElementById('editModal').style.display === 'flex') {
+                closeModal();
+            }
+            if (e.key === 'Enter' && document.getElementById('editModal').style.display === 'flex') {
+                saveEdit();
+            }
+        });
+
+        // Initialize on page load
+        window.addEventListener('load', function() {
+            console.log('Matlab GUI Simulator loaded');
+            updateStatus('Initializing...');
+            initDatabase();
+            setTimeout(() => updateStatus('Ready'), 2000);
+        });
+
+        // Auto-save when page is closed
+        window.addEventListener('beforeunload', function() {
+            saveToDatabase();
         });
     </script>
 </body>
